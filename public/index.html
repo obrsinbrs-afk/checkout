@@ -144,10 +144,34 @@
     .form-group input {
       width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px;
       padding: 13px 14px; font-size: 14px; color: #333;
-      outline: none; transition: border-color .2s; background: #fafafa;
+      outline: none; transition: border-color .2s, background .2s; background: #fafafa;
     }
     .form-group input:focus { border-color: #e91e8c; background: #fff; }
     .form-group input::placeholder { color: #bbb; }
+    .form-group input.erro {
+      border-color: #e53935;
+      background: #fff5f5;
+    }
+    .form-group input.erro::placeholder { color: #e53935; }
+    .campo-erro-msg {
+      font-size: 11px; color: #e53935; font-weight: 600;
+      margin-top: 4px; display: none;
+    }
+    .form-group input.erro ~ .campo-erro-msg { display: block; }
+
+    /* Toast de erro */
+    .toast-erro {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px);
+      background: #e53935; color: #fff;
+      padding: 12px 20px; border-radius: 12px;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 6px 24px rgba(229,57,53,.4);
+      z-index: 9999;
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      white-space: nowrap;
+    }
+    .toast-erro.show { transform: translateX(-50%) translateY(0); }
 
     /* PIX */
     .pix-simples {
@@ -348,15 +372,18 @@
     <div class="section-label">Seus dados</div>
     <div class="form-group">
       <label>E-mail *</label>
-      <input type="email" id="email" placeholder="seu@email.com" />
+      <input type="email" id="email" placeholder="seu@email.com" oninput="limparErro(this)" />
+      <span class="campo-erro-msg">Preencha seu e-mail</span>
     </div>
     <div class="form-group">
       <label>Nome completo *</label>
-      <input type="text" id="nome" placeholder="Seu nome" />
+      <input type="text" id="nome" placeholder="Seu nome" oninput="limparErro(this)" />
+      <span class="campo-erro-msg">Preencha seu nome</span>
     </div>
     <div class="form-group">
       <label>CPF/CNPJ *</label>
-      <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="18" />
+      <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="18" oninput="limparErro(this)" />
+      <span class="campo-erro-msg">Preencha seu CPF ou CNPJ</span>
     </div>
     <div class="form-group">
       <label>Celular</label>
@@ -399,6 +426,9 @@
   <div class="garantia-bar" id="elGarantiaBar"></div>
 
 </div>
+
+<!-- TOAST ERRO -->
+<div class="toast-erro" id="toastErro">⚠️ <span id="toastMsg">Preencha os campos obrigatórios</span></div>
 
 <!-- MODAL PIX -->
 <div class="overlay" id="overlay">
@@ -519,14 +549,37 @@ document.getElementById('celular').addEventListener('input', function() {
 let transacaoId = null;
 let pollingTimer = null;
 
-async function iniciarCompra() {
-  const email  = document.getElementById('email').value.trim();
-  const nome   = document.getElementById('nome').value.trim();
-  const cpf    = document.getElementById('cpf').value.trim();
-  const celular= document.getElementById('celular').value.trim();
+let toastTimer = null;
+function mostrarToast(msg) {
+  const t = document.getElementById('toastErro');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+function marcarErro(id) {
+  document.getElementById(id).classList.add('erro');
+}
+function limparErro(el) {
+  el.classList.remove('erro');
+}
 
-  if (!email || !nome || !cpf) {
-    alert('Preencha e-mail, nome e CPF para continuar.');
+async function iniciarCompra() {
+  const emailEl  = document.getElementById('email');
+  const nomeEl   = document.getElementById('nome');
+  const cpfEl    = document.getElementById('cpf');
+  const email    = emailEl.value.trim();
+  const nome     = nomeEl.value.trim();
+  const cpf      = cpfEl.value.trim();
+  const celular  = document.getElementById('celular').value.trim();
+
+  let valido = true;
+  if (!email) { marcarErro('email'); valido = false; }
+  if (!nome)  { marcarErro('nome');  valido = false; }
+  if (!cpf)   { marcarErro('cpf');   valido = false; }
+
+  if (!valido) {
+    mostrarToast('Preencha todos os campos obrigatórios');
     return;
   }
 
