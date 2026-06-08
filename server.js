@@ -246,6 +246,18 @@ app.post('/admin/api/reenviar/:id', authAdmin, async (req, res) => {
   }
 });
 
+// ── Tracking ───────────────────────────────────────────────────────
+app.get('/api/tracking', (req, res) => res.json(lerJSON('tracking.json')));
+
+app.get('/admin/api/tracking', authAdmin, (req, res) => res.json(lerJSON('tracking.json')));
+
+app.put('/admin/api/tracking', authAdmin, (req, res) => {
+  const atual = lerJSON('tracking.json');
+  const novo  = { ...atual, ...req.body };
+  salvarJSON('tracking.json', novo);
+  res.json(novo);
+});
+
 // ── Upload genérico ────────────────────────────────────────────────
 app.post('/api/upload', upload.single('imagem'), (req, res) => {
   if (!req.file) return res.status(400).json({ erro: 'Nenhum arquivo enviado.' });

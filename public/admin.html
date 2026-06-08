@@ -161,6 +161,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
       <span>Order Bumps</span>
     </div>
+    <div class="nav-item" onclick="ir('pixels')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      <span>Pixels</span>
+    </div>
     <div class="nav-item" onclick="ir('webhook')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
       <span>Webhook</span>
@@ -261,6 +265,124 @@
         </thead>
         <tbody id="tbBumps"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- PIXELS & TRACKING -->
+  <div class="page" id="page-pixels">
+    <div class="page-header">
+      <div><h1>Pixels & Tracking</h1><p>Configure rastreamento de conversões e UTM</p></div>
+      <button class="btn-primary" onclick="salvarPixels()">Salvar tudo</button>
+    </div>
+
+    <!-- FACEBOOK -->
+    <div class="webhook-box" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#1877f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:16px;">f</div>
+          <div><div style="font-weight:800;font-size:14px">Facebook Pixel</div><div style="font-size:11px;color:var(--muted)">Meta Ads — Conversões</div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;">
+          <input type="checkbox" id="fbAtivo" style="width:16px;height:16px;accent-color:var(--pink)"> Ativo
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Pixel ID</label>
+        <input type="text" id="fbPixelId" placeholder="Ex: 1234567890123456" />
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Eventos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbPageView" style="accent-color:#1877f2"> PageView</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbViewContent" style="accent-color:#1877f2"> ViewContent</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbInitCheckout" style="accent-color:#1877f2"> InitiateCheckout</label>
+        <label style="display:flex;align-items:center;gap=6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbPurchase" style="accent-color:#1877f2"> Purchase</label>
+      </div>
+    </div>
+
+    <!-- TIKTOK -->
+    <div class="webhook-box" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#010101;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎵</div>
+          <div><div style="font-weight:800;font-size:14px">TikTok Pixel</div><div style="font-size:11px;color:var(--muted)">TikTok Ads — Conversões</div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;">
+          <input type="checkbox" id="ttAtivo" style="width:16px;height:16px;accent-color:var(--pink)"> Ativo
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Pixel ID</label>
+        <input type="text" id="ttPixelId" placeholder="Ex: CXXXXXXXXXXXXXXXXX" />
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Eventos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttPageView" style="accent-color:#010101"> PageView</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttViewContent" style="accent-color:#010101"> ViewContent</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttInitCheckout" style="accent-color:#010101"> InitiateCheckout</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttPurchase" style="accent-color:#010101"> CompletePayment</label>
+      </div>
+    </div>
+
+    <!-- GOOGLE -->
+    <div class="webhook-box" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">G</div>
+          <div><div style="font-weight:800;font-size:14px">Google Tag (gtag)</div><div style="font-size:11px;color:var(--muted)">Google Ads / GA4</div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;">
+          <input type="checkbox" id="gaAtivo" style="width:16px;height:16px;accent-color:var(--pink)"> Ativo
+        </label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-row" style="margin:0">
+          <label>ID (AW-XXXXXX ou G-XXXXXX)</label>
+          <input type="text" id="gaId" placeholder="AW-123456789" />
+        </div>
+        <div class="form-row" style="margin:0">
+          <label>Conversion Label (Google Ads)</label>
+          <input type="text" id="gaLabel" placeholder="abcDEF_ghiJKL" />
+        </div>
+      </div>
+    </div>
+
+    <!-- UTMFY -->
+    <div class="webhook-box" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#6366f1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff">UTM</div>
+          <div><div style="font-weight:800;font-size:14px">UTMfy</div><div style="font-size:11px;color:var(--muted)">Rastreamento avançado de links</div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;">
+          <input type="checkbox" id="utmfyAtivo" style="width:16px;height:16px;accent-color:var(--pink)"> Ativo
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Token UTMfy</label>
+        <input type="text" id="utmfyToken" placeholder="seu_token_utmfy" />
+        <div class="form-hint">Encontre em app.utmfy.com → Configurações → Token</div>
+      </div>
+    </div>
+
+    <!-- UTM AVANÇADO -->
+    <div class="webhook-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#0ea5e9;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff">⚡</div>
+          <div><div style="font-weight:800;font-size:14px">UTM Tracking Avançado</div><div style="font-size:11px;color:var(--muted)">Captura utm_source, medium, campaign, content, term da URL</div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;">
+          <input type="checkbox" id="utmAtivo" style="width:16px;height:16px;accent-color:var(--pink)"> Ativo
+        </label>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;margin-bottom:8px">
+        <input type="checkbox" id="utmPassar" style="accent-color:#0ea5e9"> Passar UTMs para os pixels (Facebook, TikTok, Google)
+      </label>
+      <ul class="info-list" style="margin-top:4px">
+        <li>Captura automaticamente UTMs da URL e salva no localStorage</li>
+        <li>Envia utm_source, utm_medium, utm_campaign junto ao evento Purchase</li>
+        <li>Permite rastrear qual anúncio gerou cada venda</li>
+      </ul>
     </div>
   </div>
 
@@ -435,6 +557,7 @@ function ir(pagina) {
   if (pagina === 'produtos')    carregarProdutos();
   if (pagina === 'transacoes')  carregarTransacoes();
   if (pagina === 'orderbumps')  carregarBumps();
+  if (pagina === 'pixels')      carregarPixels();
   if (pagina === 'webhook')     preencherWebhook();
 }
 
@@ -687,6 +810,76 @@ async function deletarBump(id) {
 document.getElementById('overlayBump').addEventListener('click', e => {
   if (e.target === e.currentTarget) fecharModalBump();
 });
+
+// ── Pixels & Tracking ─────────────────────────────────────────────
+async function carregarPixels() {
+  const t = await fetch('/admin/api/tracking').then(r => r.json());
+  // Facebook
+  document.getElementById('fbAtivo').checked        = t.facebook?.ativo || false;
+  document.getElementById('fbPixelId').value         = t.facebook?.pixel_id || '';
+  document.getElementById('fbPageView').checked      = t.facebook?.eventos?.pageview !== false;
+  document.getElementById('fbViewContent').checked   = t.facebook?.eventos?.view_content !== false;
+  document.getElementById('fbInitCheckout').checked  = t.facebook?.eventos?.initiate_checkout !== false;
+  document.getElementById('fbPurchase').checked      = t.facebook?.eventos?.purchase !== false;
+  // TikTok
+  document.getElementById('ttAtivo').checked        = t.tiktok?.ativo || false;
+  document.getElementById('ttPixelId').value         = t.tiktok?.pixel_id || '';
+  document.getElementById('ttPageView').checked      = t.tiktok?.eventos?.pageview !== false;
+  document.getElementById('ttViewContent').checked   = t.tiktok?.eventos?.view_content !== false;
+  document.getElementById('ttInitCheckout').checked  = t.tiktok?.eventos?.initiate_checkout !== false;
+  document.getElementById('ttPurchase').checked      = t.tiktok?.eventos?.purchase !== false;
+  // Google
+  document.getElementById('gaAtivo').checked  = t.google?.ativo || false;
+  document.getElementById('gaId').value        = t.google?.gtag_id || '';
+  document.getElementById('gaLabel').value     = t.google?.conversion_label || '';
+  // UTMfy
+  document.getElementById('utmfyAtivo').checked  = t.utmfy?.ativo || false;
+  document.getElementById('utmfyToken').value     = t.utmfy?.token || '';
+  // UTM avançado
+  document.getElementById('utmAtivo').checked  = t.utm?.ativo || false;
+  document.getElementById('utmPassar').checked  = t.utm?.passar_para_pixels !== false;
+}
+
+async function salvarPixels() {
+  const body = {
+    facebook: {
+      ativo:     document.getElementById('fbAtivo').checked,
+      pixel_id:  document.getElementById('fbPixelId').value.trim(),
+      eventos: {
+        pageview:           document.getElementById('fbPageView').checked,
+        view_content:       document.getElementById('fbViewContent').checked,
+        initiate_checkout:  document.getElementById('fbInitCheckout').checked,
+        purchase:           document.getElementById('fbPurchase').checked,
+      }
+    },
+    tiktok: {
+      ativo:     document.getElementById('ttAtivo').checked,
+      pixel_id:  document.getElementById('ttPixelId').value.trim(),
+      eventos: {
+        pageview:           document.getElementById('ttPageView').checked,
+        view_content:       document.getElementById('ttViewContent').checked,
+        initiate_checkout:  document.getElementById('ttInitCheckout').checked,
+        purchase:           document.getElementById('ttPurchase').checked,
+      }
+    },
+    google: {
+      ativo:             document.getElementById('gaAtivo').checked,
+      gtag_id:           document.getElementById('gaId').value.trim(),
+      conversion_label:  document.getElementById('gaLabel').value.trim(),
+    },
+    utmfy: {
+      ativo:  document.getElementById('utmfyAtivo').checked,
+      token:  document.getElementById('utmfyToken').value.trim(),
+    },
+    utm: {
+      ativo:              document.getElementById('utmAtivo').checked,
+      passar_para_pixels: document.getElementById('utmPassar').checked,
+    },
+  };
+  const r = await fetch('/admin/api/tracking', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (r.ok) toast('Pixels salvos!');
+  else toast('Erro ao salvar', 'err');
+}
 </script>
 </body>
 </html>

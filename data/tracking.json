@@ -1,0 +1,7 @@
+{
+  "facebook": { "ativo": false, "pixel_id": "", "eventos": { "pageview": true, "initiate_checkout": true, "purchase": true } },
+  "tiktok":   { "ativo": false, "pixel_id": "", "eventos": { "pageview": true, "initiate_checkout": true, "purchase": true } },
+  "google":   { "ativo": false, "gtag_id": "", "conversion_label": "" },
+  "utmfy":    { "ativo": false, "token": "" },
+  "utm":      { "ativo": false, "passar_para_pixels": true }
+}

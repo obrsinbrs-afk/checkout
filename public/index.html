@@ -661,6 +661,89 @@ function atualizarTotal() {
 
 carregarBumps();
 
+// ── Pixels & Tracking ─────────────────────────────────────────────
+let _tracking = {};
+
+async function iniciarTracking() {
+  try { _tracking = await fetch('/api/tracking').then(r => r.json()); } catch(_) { return; }
+
+  // UTM avançado — captura e salva
+  if (_tracking.utm?.ativo) capturarUTMs();
+
+  // Facebook Pixel
+  if (_tracking.facebook?.ativo && _tracking.facebook.pixel_id) {
+    const pid = _tracking.facebook.pixel_id;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', pid);
+    if (_tracking.facebook.eventos?.pageview)     fbq('track', 'PageView');
+    if (_tracking.facebook.eventos?.view_content) fbq('track', 'ViewContent', { content_name: CONFIG.produto_nome, value: CONFIG.produto_valor, currency: 'BRL' });
+  }
+
+  // TikTok Pixel
+  if (_tracking.tiktok?.ativo && _tracking.tiktok.pixel_id) {
+    const tid = _tracking.tiktok.pixel_id;
+    !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript";o.async=!0;o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};ttq.load(tid);ttq.page();}(window,document,'ttq');
+  }
+
+  // Google gtag
+  if (_tracking.google?.ativo && _tracking.google.gtag_id) {
+    const gid = _tracking.google.gtag_id;
+    const s = document.createElement('script'); s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${gid}`;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ dataLayer.push(arguments); };
+    gtag('js', new Date()); gtag('config', gid);
+  }
+
+  // UTMfy
+  if (_tracking.utmfy?.ativo && _tracking.utmfy.token) {
+    const s = document.createElement('script'); s.async = true;
+    s.src = `https://cdn.utmify.com.br/scripts/utms/latest.js`;
+    s.setAttribute('data-utmify-prevent-subids','');
+    document.head.appendChild(s);
+  }
+}
+
+function capturarUTMs() {
+  const params = new URLSearchParams(window.location.search);
+  const utms = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','sck','src'];
+  const saved = {};
+  utms.forEach(k => { const v = params.get(k); if (v) { saved[k] = v; localStorage.setItem(k, v); } });
+  // recupera também os já salvos
+  utms.forEach(k => { if (!saved[k] && localStorage.getItem(k)) saved[k] = localStorage.getItem(k); });
+  window._utms = saved;
+}
+
+function getUTMs() {
+  return window._utms || {};
+}
+
+function pixelInitiateCheckout(valor) {
+  const utms = _tracking.utm?.passar_para_pixels ? getUTMs() : {};
+  if (_tracking.facebook?.ativo && _tracking.facebook.eventos?.initiate_checkout && window.fbq)
+    fbq('track', 'InitiateCheckout', { value: valor, currency: 'BRL', ...utms });
+  if (_tracking.tiktok?.ativo && _tracking.tiktok.eventos?.initiate_checkout && window.ttq)
+    ttq.track('InitiateCheckout', { value: valor, currency: 'BRL', ...utms });
+  if (_tracking.google?.ativo && window.gtag)
+    gtag('event', 'begin_checkout', { value: valor, currency: 'BRL' });
+}
+
+function pixelPurchase(valor, txId) {
+  const utms = _tracking.utm?.passar_para_pixels ? getUTMs() : {};
+  if (_tracking.facebook?.ativo && _tracking.facebook.eventos?.purchase && window.fbq)
+    fbq('track', 'Purchase', { value: valor, currency: 'BRL', transaction_id: txId, ...utms });
+  if (_tracking.tiktok?.ativo && _tracking.tiktok.eventos?.purchase && window.ttq)
+    ttq.track('CompletePayment', { value: valor, currency: 'BRL', order_id: txId, ...utms });
+  if (_tracking.google?.ativo && window.gtag) {
+    gtag('event', 'purchase', { transaction_id: txId, value: valor, currency: 'BRL' });
+    if (_tracking.google.conversion_label)
+      gtag('event', 'conversion', { send_to: `${_tracking.google.gtag_id}/${_tracking.google.conversion_label}`, value: valor, currency: 'BRL', transaction_id: txId });
+  }
+}
+
+iniciarTracking();
+
 // Garantia — só imagem full width
 const gBar = document.getElementById('elGarantiaBar');
 if (CONFIG.garantia_imagem) {
@@ -734,6 +817,7 @@ async function iniciarCompra() {
   }
 
   document.getElementById('btnComprar').disabled = true;
+  pixelInitiateCheckout(valorTotal);
   abrirModal();
 
   try {
@@ -823,6 +907,7 @@ function iniciarPolling() {
 }
 
 function confirmarPagamento() {
+  pixelPurchase(CONFIG.produto_valor, transacaoId);
   const st = document.getElementById('statusEl');
   if (st) { st.className = 'status-pago'; st.innerHTML = '<div class="dot-pulse"></div> ✅ Pagamento confirmado!'; }
 
