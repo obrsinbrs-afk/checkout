@@ -32,9 +32,36 @@
       background: #e91e8c;
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
       box-shadow: 0 0 10px rgba(233,30,140,.6);
       flex-shrink: 0;
+      position: relative;
+    }
+    /* Relógio CSS */
+    .clock-css {
+      width: 20px; height: 20px;
+      border: 2.5px solid #fff;
+      border-radius: 50%;
+      position: relative;
+    }
+    .clock-css::before {
+      content: '';
+      position: absolute;
+      width: 2px; height: 6px;
+      background: #fff;
+      border-radius: 1px;
+      top: 1px; left: 50%;
+      transform: translateX(-50%);
+      transform-origin: bottom center;
+    }
+    .clock-css::after {
+      content: '';
+      position: absolute;
+      width: 2px; height: 5px;
+      background: #fff;
+      border-radius: 1px;
+      top: 50%; left: 50%;
+      transform: translateX(-50%) rotate(90deg);
+      transform-origin: top center;
     }
     .timer-info { display: flex; flex-direction: column; gap: 1px; }
     .timer-info-label { font-size: 9px; font-weight: 700; color: #ff9ecc; text-transform: uppercase; letter-spacing: 1.5px; }
@@ -342,7 +369,7 @@
 
   <!-- TIMER -->
   <div class="timer-bar">
-    <div class="timer-emoji-box">⏰</div>
+    <div class="timer-emoji-box"><div class="clock-css"></div></div>
     <div class="timer-info">
       <div class="timer-info-label">Tempo restante</div>
       <div class="timer-digits"><span id="timerMin">10</span>:<span id="timerSeg">00</span></div>
