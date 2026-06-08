@@ -252,6 +252,41 @@
       color: #fff; font-weight: 900;
     }
 
+    /* ORDER BUMP */
+    .bump-section { margin: 18px 0 0; }
+    .bump-section-label { font-size: 10px; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .bump-section-label::before, .bump-section-label::after { content:''; flex:1; height:1px; background:rgba(124,58,237,.2); }
+    .bump-card {
+      border: 2px dashed #7c3aed;
+      border-radius: 12px;
+      padding: 14px;
+      background: #faf5ff;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      position: relative;
+    }
+    .bump-card.selecionado { border-color: #7c3aed; background: #f3e8ff; border-style: solid; }
+    .bump-check {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid #c4b5fd; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px; transition: all .15s;
+    }
+    .bump-card.selecionado .bump-check { background: #7c3aed; border-color: #7c3aed; }
+    .bump-check::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 900; display: none; }
+    .bump-card.selecionado .bump-check::after { display: block; }
+    .bump-img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .bump-img-placeholder { width: 54px; height: 54px; border-radius: 8px; background: #ede9fe; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .bump-info { flex: 1; }
+    .bump-info .btag { font-size: 9px; font-weight: 800; color: #fff; background: #7c3aed; border-radius: 4px; padding: 2px 7px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 4px; }
+    .bump-info h4 { font-size: 14px; font-weight: 800; color: #3b0764; }
+    .bump-info p { font-size: 12px; color: #6b21a8; margin-top: 2px; line-height: 1.4; }
+    .bump-preco { font-size: 15px; font-weight: 900; color: #7c3aed; white-space: nowrap; flex-shrink: 0; }
+
     /* Resumo */
     .resumo {
       background: #f8f8f8;
@@ -425,11 +460,15 @@
       <div class="pix-check">✓</div>
     </div>
 
+    <!-- ORDER BUMPS -->
+    <div id="bumpsContainer"></div>
+
     <!-- Resumo -->
     <div class="resumo">
       <h4>Resumo</h4>
       <div class="resumo-linha"><span id="rNome"></span><span id="rValor"></span></div>
       <div class="resumo-linha"><span>Subtotal</span><span id="rSub"></span></div>
+      <div id="resumoBumps"></div>
       <div class="resumo-total"><span>Total</span><span id="rTotal"></span></div>
     </div>
 
@@ -538,6 +577,71 @@ document.getElementById('rValor').textContent = valorFmt;
 document.getElementById('rSub').textContent   = valorFmt;
 document.getElementById('rTotal').textContent = valorFmt;
 
+// ── Order Bumps ──────────────────────────────────────────────────
+let bumpsDisponiveis = [];
+let bumpsSelecionados = new Set();
+
+async function carregarBumps() {
+  try {
+    bumpsDisponiveis = await fetch('/api/orderbumps').then(r => r.json());
+    renderBumps();
+  } catch(_) {}
+}
+
+function renderBumps() {
+  const container = document.getElementById('bumpsContainer');
+  if (!bumpsDisponiveis.length) { container.innerHTML = ''; return; }
+  container.innerHTML = `
+    <div class="bump-section">
+      <div class="bump-section-label">Oferta especial para você</div>
+      ${bumpsDisponiveis.map(b => `
+        <div class="bump-card" id="bump-${b.id}" onclick="toggleBump('${b.id}', ${b.valor})">
+          <div class="bump-check"></div>
+          ${b.imagem
+            ? `<img src="${b.imagem}" class="bump-img" alt="${b.titulo}" />`
+            : `<div class="bump-img-placeholder">🎁</div>`}
+          <div class="bump-info">
+            <span class="btag">+ Adicionar</span>
+            <h4>${b.titulo}</h4>
+            <p>${b.descricao || ''}</p>
+          </div>
+          <div class="bump-preco">+R$ ${b.valor.toFixed(2).replace('.',',')}</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function toggleBump(id, valor) {
+  const card = document.getElementById('bump-' + id);
+  if (bumpsSelecionados.has(id)) {
+    bumpsSelecionados.delete(id);
+    card.classList.remove('selecionado');
+  } else {
+    bumpsSelecionados.add(id);
+    card.classList.add('selecionado');
+  }
+  atualizarTotal();
+}
+
+function atualizarTotal() {
+  const totalBumps = [...bumpsSelecionados].reduce((s, id) => {
+    const b = bumpsDisponiveis.find(x => x.id === id);
+    return s + (b ? b.valor : 0);
+  }, 0);
+  const total = CONFIG.produto_valor + totalBumps;
+  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+  document.getElementById('rSub').textContent   = fmt(CONFIG.produto_valor);
+  document.getElementById('rTotal').textContent = fmt(total);
+  // linhas de bumps no resumo
+  const extra = document.getElementById('resumoBumps');
+  if (extra) extra.innerHTML = [...bumpsSelecionados].map(id => {
+    const b = bumpsDisponiveis.find(x => x.id === id);
+    return b ? `<div class="resumo-linha"><span>+ ${b.titulo}</span><span>R$ ${b.valor.toFixed(2).replace('.',',')}</span></div>` : '';
+  }).join('');
+}
+
+carregarBumps();
+
 // Garantia — só imagem full width
 const gBar = document.getElementById('elGarantiaBar');
 if (CONFIG.garantia_imagem) {
@@ -614,10 +718,22 @@ async function iniciarCompra() {
   abrirModal();
 
   try {
+    const totalBumps = [...bumpsSelecionados].reduce((s, id) => {
+      const b = bumpsDisponiveis.find(x => x.id === id);
+      return s + (b ? b.valor : 0);
+    }, 0);
+    const valorTotal = CONFIG.produto_valor + totalBumps;
+
     const resp = await fetch('/api/criar-cobranca', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, email, cpf, celular, valor: CONFIG.produto_valor, descricao: CONFIG.produto_nome }),
+      body: JSON.stringify({
+        nome, email, cpf, celular,
+        valor:      valorTotal,
+        descricao:  CONFIG.produto_nome,
+        produto_id: CONFIG.produto_id || '',
+        bumps_ids:  [...bumpsSelecionados],
+      }),
     });
     if (!resp.ok) throw new Error('Erro servidor');
     const dados = await resp.json();

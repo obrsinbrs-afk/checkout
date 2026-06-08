@@ -157,6 +157,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
       <span>Transações</span>
     </div>
+    <div class="nav-item" onclick="ir('orderbumps')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+      <span>Order Bumps</span>
+    </div>
     <div class="nav-item" onclick="ir('webhook')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
       <span>Webhook</span>
@@ -237,6 +241,25 @@
           <tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Valor</th><th>Status</th><th>Email Enviado</th><th>Data</th><th></th></tr>
         </thead>
         <tbody id="tbTransacoes"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ORDER BUMPS -->
+  <div class="page" id="page-orderbumps">
+    <div class="page-header">
+      <div>
+        <h1>Order Bumps</h1>
+        <p>Ofertas adicionais exibidas no checkout</p>
+      </div>
+      <button class="btn-primary" onclick="abrirModalBump()">+ Novo Bump</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Título</th><th>Valor</th><th>Entrega</th><th>Status</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="tbBumps"></tbody>
       </table>
     </div>
   </div>
@@ -330,6 +353,61 @@ EMAIL_FROM=seuemail@gmail.com</pre>
   </div>
 </div>
 
+<!-- MODAL ORDER BUMP -->
+<div class="overlay" id="overlayBump">
+  <div class="modal-box">
+    <h2 id="modalBumpTitulo">Novo Order Bump</h2>
+    <input type="hidden" id="bumpId" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-row" style="margin:0">
+        <label>Título *</label>
+        <input type="text" id="bTitulo" placeholder="Ex: Guia Bônus" />
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Valor (R$) *</label>
+        <input type="number" id="bValor" placeholder="9.90" step="0.01" />
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px">
+      <label>Descrição (aparece no checkout)</label>
+      <textarea id="bDesc" rows="2" placeholder="Sim! Quero também o Guia Bônus com dicas exclusivas..."></textarea>
+    </div>
+    <div class="form-row">
+      <label>Imagem do Bump (opcional)</label>
+      <input type="file" id="bImagem" accept=".png,.jpg,.jpeg,.webp" />
+    </div>
+    <div class="form-row">
+      <label>Vincular a produto cadastrado (entrega automática)</label>
+      <select id="bProdutoId">
+        <option value="">— Configurar entrega abaixo —</option>
+      </select>
+      <div class="form-hint">Se selecionar um produto, usará o email/arquivo dele</div>
+    </div>
+    <div id="bEntregaManual">
+      <div class="form-row">
+        <label>Link de Entrega</label>
+        <input type="url" id="bLink" placeholder="https://..." />
+      </div>
+      <div class="form-row">
+        <label>Assunto do Email</label>
+        <input type="text" id="bEmailAssunto" placeholder="Seu bônus chegou!" />
+      </div>
+      <div class="form-row">
+        <label>Corpo do Email</label>
+        <textarea id="bEmailCorpo" placeholder="Olá {nome}, aqui está seu bônus {produto}..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <input type="checkbox" id="bAtivo" checked style="width:16px;height:16px;accent-color:var(--pink)" />
+      <label for="bAtivo" style="font-size:13px;color:#ccc;cursor:pointer;text-transform:none;letter-spacing:0">Exibir no checkout</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="fecharModalBump()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarBump()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -353,10 +431,11 @@ function ir(pagina) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + pagina).classList.add('active');
   event.currentTarget.classList.add('active');
-  if (pagina === 'dashboard')  carregarDash();
-  if (pagina === 'produtos')   carregarProdutos();
-  if (pagina === 'transacoes') carregarTransacoes();
-  if (pagina === 'webhook')    preencherWebhook();
+  if (pagina === 'dashboard')   carregarDash();
+  if (pagina === 'produtos')    carregarProdutos();
+  if (pagina === 'transacoes')  carregarTransacoes();
+  if (pagina === 'orderbumps')  carregarBumps();
+  if (pagina === 'webhook')     preencherWebhook();
 }
 
 function carregarTudo() {
@@ -511,6 +590,102 @@ function formatDate(d) {
 
 document.getElementById('overlayProduto').addEventListener('click', e => {
   if (e.target === e.currentTarget) fecharModalProduto();
+});
+
+// ── Order Bumps ────────────────────────────────────────────────────
+let bumps = [];
+async function carregarBumps() {
+  bumps = await fetch('/admin/api/orderbumps').then(r => r.json());
+  const tb = document.getElementById('tbBumps');
+  tb.innerHTML = bumps.map(b => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${b.imagem ? `<img src="${b.imagem}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">` : '<div style="width:40px;height:40px;background:#2a2a2a;border-radius:8px;"></div>'}
+          <div>
+            <div style="font-weight:700">${b.titulo}</div>
+            <div style="font-size:11px;color:var(--muted)">${b.descricao?.slice(0,50) || ''}</div>
+          </div>
+        </div>
+      </td>
+      <td>R$ ${b.valor.toFixed(2).replace('.',',')}</td>
+      <td>${b.link_entrega || b.produto_id ? '<span class="badge badge-green">Configurado</span>' : '<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+      <td>${b.ativo ? '<span class="badge badge-green">Ativo</span>' : '<span class="badge badge-red">Inativo</span>'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn-ghost" onclick="editarBump('${b.id}')">Editar</button>
+        <button class="btn-danger" onclick="deletarBump('${b.id}')">Excluir</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px">Nenhum order bump cadastrado</td></tr>';
+}
+
+async function popularSelectProdutos() {
+  const ps = await fetch('/admin/api/produtos').then(r => r.json());
+  const sel = document.getElementById('bProdutoId');
+  sel.innerHTML = '<option value="">— Configurar entrega abaixo —</option>';
+  ps.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nome} — R$ ${p.valor.toFixed(2)}</option>`);
+  sel.onchange = () => {
+    document.getElementById('bEntregaManual').style.display = sel.value ? 'none' : 'block';
+  };
+}
+
+function abrirModalBump() {
+  document.getElementById('overlayBump').classList.add('show');
+  document.getElementById('modalBumpTitulo').textContent = 'Novo Order Bump';
+  ['bumpId','bTitulo','bValor','bDesc','bLink','bEmailAssunto','bEmailCorpo'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('bAtivo').checked = true;
+  document.getElementById('bEntregaManual').style.display = 'block';
+  popularSelectProdutos();
+}
+function fecharModalBump() { document.getElementById('overlayBump').classList.remove('show'); }
+
+function editarBump(id) {
+  const b = bumps.find(x => x.id === id);
+  if (!b) return;
+  popularSelectProdutos().then(() => {
+    document.getElementById('bumpId').value        = b.id;
+    document.getElementById('bTitulo').value       = b.titulo;
+    document.getElementById('bValor').value        = b.valor;
+    document.getElementById('bDesc').value         = b.descricao || '';
+    document.getElementById('bLink').value         = b.link_entrega || '';
+    document.getElementById('bEmailAssunto').value = b.email_assunto || '';
+    document.getElementById('bEmailCorpo').value   = b.email_corpo || '';
+    document.getElementById('bProdutoId').value    = b.produto_id || '';
+    document.getElementById('bAtivo').checked      = b.ativo;
+    document.getElementById('bEntregaManual').style.display = b.produto_id ? 'none' : 'block';
+    document.getElementById('modalBumpTitulo').textContent = 'Editar Order Bump';
+    document.getElementById('overlayBump').classList.add('show');
+  });
+}
+
+async function salvarBump() {
+  const id   = document.getElementById('bumpId').value;
+  const form = new FormData();
+  form.append('titulo',        document.getElementById('bTitulo').value);
+  form.append('valor',         document.getElementById('bValor').value);
+  form.append('descricao',     document.getElementById('bDesc').value);
+  form.append('link_entrega',  document.getElementById('bLink').value);
+  form.append('email_assunto', document.getElementById('bEmailAssunto').value);
+  form.append('email_corpo',   document.getElementById('bEmailCorpo').value);
+  form.append('produto_id',    document.getElementById('bProdutoId').value);
+  form.append('ativo',         document.getElementById('bAtivo').checked);
+  const img = document.getElementById('bImagem').files[0];
+  if (img) form.append('imagem', img);
+
+  const url    = id ? `/admin/api/orderbumps/${id}` : '/admin/api/orderbumps';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url, { method, body: form });
+  if (r.ok) { toast('Bump salvo!'); fecharModalBump(); carregarBumps(); }
+  else toast('Erro ao salvar', 'err');
+}
+
+async function deletarBump(id) {
+  if (!confirm('Excluir este order bump?')) return;
+  const r = await fetch(`/admin/api/orderbumps/${id}`, { method: 'DELETE' });
+  if (r.ok) { toast('Bump excluído'); carregarBumps(); }
+}
+
+document.getElementById('overlayBump').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharModalBump();
 });
 </script>
 </body>
