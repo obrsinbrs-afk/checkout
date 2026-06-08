@@ -246,6 +246,54 @@ app.post('/admin/api/reenviar/:id', authAdmin, async (req, res) => {
   }
 });
 
+// ── Leads / Abandonados ────────────────────────────────────────────
+app.post('/api/lead', (req, res) => {
+  const { nome, email, celular, cpf } = req.body;
+  if (!email) return res.status(400).json({ erro: 'Email obrigatório' });
+
+  const leads = lerJSON('abandoned.json');
+  const idx   = leads.findIndex(l => l.email === email);
+  const dados = {
+    id:        idx >= 0 ? leads[idx].id : uuidv4().slice(0, 8),
+    nome:      nome || '',
+    email,
+    celular:   celular || '',
+    cpf:       cpf || '',
+    status:    'abandonado',
+    criado:    idx >= 0 ? leads[idx].criado : new Date().toISOString(),
+    atualizado: new Date().toISOString(),
+  };
+
+  if (idx >= 0) leads[idx] = dados;
+  else leads.push(dados);
+  salvarJSON('abandoned.json', leads);
+  res.json({ ok: true });
+});
+
+// Marcar como convertido (chamado internamente no webhook)
+function marcarLeadConvertido(email) {
+  const leads = lerJSON('abandoned.json');
+  const idx   = leads.findIndex(l => l.email === email);
+  if (idx >= 0) { leads[idx].status = 'convertido'; salvarJSON('abandoned.json', leads); }
+}
+
+app.get('/admin/api/abandonados', authAdmin, (req, res) => {
+  const leads = lerJSON('abandoned.json');
+  res.json(leads.filter(l => l.status === 'abandonado').sort((a, b) => new Date(b.atualizado) - new Date(a.atualizado)));
+});
+
+app.get('/admin/api/abandonados/todos', authAdmin, (req, res) => {
+  const leads = lerJSON('abandoned.json');
+  res.json(leads.sort((a, b) => new Date(b.atualizado) - new Date(a.atualizado)));
+});
+
+app.delete('/admin/api/abandonados/:id', authAdmin, (req, res) => {
+  let leads = lerJSON('abandoned.json');
+  leads = leads.filter(l => l.id !== req.params.id);
+  salvarJSON('abandoned.json', leads);
+  res.json({ ok: true });
+});
+
 // ── Tracking ───────────────────────────────────────────────────────
 app.get('/api/tracking', (req, res) => res.json(lerJSON('tracking.json')));
 
@@ -341,6 +389,7 @@ app.post('/webhook', async (req, res) => {
     if (idx !== -1 && txs[idx].status !== 'paid') {
       txs[idx].status  = 'paid';
       txs[idx].pago_em = new Date().toISOString();
+      marcarLeadConvertido(txs[idx].email);
       const produtos   = lerJSON('products.json');
       const bumps      = lerJSON('orderbumps.json');
 

@@ -727,6 +727,16 @@ function pixelInitiateCheckout(valor) {
     gtag('event', 'begin_checkout', { value: valor, currency: 'BRL' });
 }
 
+function pixelAddPaymentInfo(valor) {
+  const utms = _tracking.utm?.passar_para_pixels ? getUTMs() : {};
+  if (_tracking.facebook?.ativo && _tracking.facebook.eventos?.add_payment_info && window.fbq)
+    fbq('track', 'AddPaymentInfo', { value: valor, currency: 'BRL', payment_type: 'PIX', ...utms });
+  if (_tracking.tiktok?.ativo && _tracking.tiktok.eventos?.add_payment_info && window.ttq)
+    ttq.track('AddPaymentInfo', { value: valor, currency: 'BRL', ...utms });
+  if (_tracking.google?.ativo && window.gtag)
+    gtag('event', 'add_payment_info', { value: valor, currency: 'BRL', payment_type: 'PIX' });
+}
+
 function pixelPurchase(valor, txId) {
   const utms = _tracking.utm?.passar_para_pixels ? getUTMs() : {};
   if (_tracking.facebook?.ativo && _tracking.facebook.eventos?.purchase && window.fbq)
@@ -764,6 +774,34 @@ if (CONFIG.garantia_imagem) {
 })();
 
 // ── Máscaras ────────────────────────────────────────────────────────
+// ── Captura de lead (abandonado) ───────────────────────────────────
+let _leadSalvo = false;
+let _leadTimer = null;
+
+function salvarLead() {
+  const email   = document.getElementById('email').value.trim();
+  const nome    = document.getElementById('nome').value.trim();
+  const celular = document.getElementById('celular').value.trim();
+  const cpf     = document.getElementById('cpf').value.trim();
+  if (!email) return;
+  fetch('/api/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, email, celular, cpf }),
+  }).then(() => { _leadSalvo = true; });
+}
+
+// Salva quando email é preenchido (blur) — captura mesmo sem finalizar
+document.getElementById('email').addEventListener('blur', function() {
+  if (this.value.trim()) { clearTimeout(_leadTimer); _leadTimer = setTimeout(salvarLead, 800); }
+});
+// Atualiza com os outros campos quando preenchidos
+['nome','celular','cpf'].forEach(id => {
+  document.getElementById(id).addEventListener('blur', function() {
+    if (_leadSalvo) { clearTimeout(_leadTimer); _leadTimer = setTimeout(salvarLead, 800); }
+  });
+});
+
 document.getElementById('cpf').addEventListener('input', function() {
   let v = this.value.replace(/\D/g, '');
   if (v.length <= 11) v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
@@ -842,6 +880,7 @@ async function iniciarCompra() {
 
     transacaoId = dados.id;
     mostrarQR(dados);
+    pixelAddPaymentInfo(valorTotal);
     iniciarPolling();
   } catch (err) {
     fecharModal();
