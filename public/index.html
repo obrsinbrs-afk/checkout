@@ -171,6 +171,13 @@
     .pix-logo-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
     .pix-logo-svg { width: 28px; height: 28px; fill: #fff; }
     .pix-label { font-size: 16px; font-weight: 800; color: #32bcad; }
+    .pix-box { position: relative; overflow: hidden; }
+    .pix-box-bg {
+      position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+      width: 90px; height: 90px;
+      opacity: .08;
+      pointer-events: none;
+    }
     .pix-check {
       margin-left: auto;
       width: 22px; height: 22px;
@@ -346,6 +353,7 @@
     <!-- PIX -->
     <div class="section-label" style="margin-top:6px;">Pagamento</div>
     <div class="pix-box">
+      <img src="/pix-logo.png" class="pix-box-bg" alt="" />
       <div class="pix-logo-wrap" id="elPixLogo">
         <!-- SVG logo PIX padrão -->
         <svg class="pix-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
