@@ -20,19 +20,39 @@
 
     /* TIMER */
     .timer-bar {
-      background: #e91e8c;
-      color: #fff;
+      background: #1a001a;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 9px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      text-align: center;
-      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 16px;
     }
-    .timer-digits { font-size: 20px; font-weight: 900; letter-spacing: 2px; }
+    .timer-emoji-box {
+      width: 36px; height: 36px;
+      background: #e91e8c;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 10px rgba(233,30,140,.6);
+      flex-shrink: 0;
+    }
+    .timer-info { display: flex; flex-direction: column; gap: 1px; }
+    .timer-info-label { font-size: 9px; font-weight: 700; color: #ff9ecc; text-transform: uppercase; letter-spacing: 1.5px; }
+    .timer-digits {
+      font-size: 22px; font-weight: 900;
+      font-family: 'Sora', monospace;
+      color: #fff;
+      letter-spacing: 3px;
+      line-height: 1;
+    }
+    .timer-urgency {
+      font-size: 11px; font-weight: 600;
+      color: #ffcce8;
+      border-left: 2px solid #e91e8c;
+      padding-left: 8px;
+      line-height: 1.4;
+      max-width: 120px;
+    }
 
     /* BANNER */
     .banner {
@@ -278,9 +298,12 @@
 
   <!-- TIMER -->
   <div class="timer-bar">
-    <span>⏰</span>
-    <span class="timer-digits"><span id="timerMin">10</span>:<span id="timerSeg">00</span></span>
-    <span>Seu tempo está acabando! Finalize agora.</span>
+    <div class="timer-emoji-box">⏰</div>
+    <div class="timer-info">
+      <div class="timer-info-label">Tempo restante</div>
+      <div class="timer-digits"><span id="timerMin">10</span>:<span id="timerSeg">00</span></div>
+    </div>
+    <div class="timer-urgency">Finalize antes que expire!</div>
   </div>
 
   <!-- BANNER -->
