@@ -292,10 +292,8 @@
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Eventos</div>
       <div style="display:flex;flex-wrap:wrap;gap:10px">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbPageView" style="accent-color:#1877f2"> PageView</label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbViewContent" style="accent-color:#1877f2"> ViewContent</label>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbInitCheckout" style="accent-color:#1877f2"> InitiateCheckout</label>
-        <label style="display:flex;align-items:center;gap=6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbPurchase" style="accent-color:#1877f2"> Purchase</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="fbPurchase" style="accent-color:#1877f2"> Purchase</label>
       </div>
     </div>
 
@@ -316,8 +314,6 @@
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Eventos</div>
       <div style="display:flex;flex-wrap:wrap;gap:10px">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttPageView" style="accent-color:#010101"> PageView</label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttViewContent" style="accent-color:#010101"> ViewContent</label>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttInitCheckout" style="accent-color:#010101"> InitiateCheckout</label>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:#ccc;"><input type="checkbox" id="ttPurchase" style="accent-color:#010101"> CompletePayment</label>
       </div>
@@ -817,15 +813,11 @@ async function carregarPixels() {
   // Facebook
   document.getElementById('fbAtivo').checked        = t.facebook?.ativo || false;
   document.getElementById('fbPixelId').value         = t.facebook?.pixel_id || '';
-  document.getElementById('fbPageView').checked      = t.facebook?.eventos?.pageview !== false;
-  document.getElementById('fbViewContent').checked   = t.facebook?.eventos?.view_content !== false;
   document.getElementById('fbInitCheckout').checked  = t.facebook?.eventos?.initiate_checkout !== false;
   document.getElementById('fbPurchase').checked      = t.facebook?.eventos?.purchase !== false;
   // TikTok
   document.getElementById('ttAtivo').checked        = t.tiktok?.ativo || false;
   document.getElementById('ttPixelId').value         = t.tiktok?.pixel_id || '';
-  document.getElementById('ttPageView').checked      = t.tiktok?.eventos?.pageview !== false;
-  document.getElementById('ttViewContent').checked   = t.tiktok?.eventos?.view_content !== false;
   document.getElementById('ttInitCheckout').checked  = t.tiktok?.eventos?.initiate_checkout !== false;
   document.getElementById('ttPurchase').checked      = t.tiktok?.eventos?.purchase !== false;
   // Google
@@ -846,8 +838,6 @@ async function salvarPixels() {
       ativo:     document.getElementById('fbAtivo').checked,
       pixel_id:  document.getElementById('fbPixelId').value.trim(),
       eventos: {
-        pageview:           document.getElementById('fbPageView').checked,
-        view_content:       document.getElementById('fbViewContent').checked,
         initiate_checkout:  document.getElementById('fbInitCheckout').checked,
         purchase:           document.getElementById('fbPurchase').checked,
       }
@@ -856,8 +846,6 @@ async function salvarPixels() {
       ativo:     document.getElementById('ttAtivo').checked,
       pixel_id:  document.getElementById('ttPixelId').value.trim(),
       eventos: {
-        pageview:           document.getElementById('ttPageView').checked,
-        view_content:       document.getElementById('ttViewContent').checked,
         initiate_checkout:  document.getElementById('ttInitCheckout').checked,
         purchase:           document.getElementById('ttPurchase').checked,
       }
