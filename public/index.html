@@ -18,78 +18,21 @@
     }
     .wrap { width: 100%; max-width: 480px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* TIMER MOCKUP */
+    /* TIMER */
     .timer-bar {
-      background: linear-gradient(135deg, #1a001a 0%, #3d0057 100%);
+      background: #e91e8c;
       color: #fff;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 14px 16px 12px;
-      border-bottom: 2px solid #e91e8c;
-    }
-    .timer-label {
-      font-size: 10px;
+      padding: 9px 16px;
+      font-size: 12px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #ff9ecc;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .timer-label::before, .timer-label::after {
-      content: '';
-      width: 28px; height: 1px;
-      background: rgba(255,158,204,.3);
-    }
-    .timer-blocks {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .timer-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .timer-digits-box {
-      background: #e91e8c;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 28px;
-      font-weight: 900;
-      font-family: 'Sora', monospace;
-      letter-spacing: 2px;
-      line-height: 1;
-      box-shadow: 0 4px 12px rgba(233,30,140,.5), inset 0 1px 0 rgba(255,255,255,.15);
-      min-width: 64px;
       text-align: center;
+      flex-wrap: wrap;
     }
-    .timer-block-label {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #ff9ecc;
-    }
-    .timer-sep {
-      font-size: 24px;
-      font-weight: 900;
-      color: #e91e8c;
-      margin-bottom: 14px;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-    .timer-urgency {
-      font-size: 11px;
-      font-weight: 600;
-      color: #ffcce8;
-      letter-spacing: .3px;
-    }
+    .timer-digits { font-size: 20px; font-weight: 900; letter-spacing: 2px; }
 
     /* BANNER */
     .banner {
@@ -265,14 +208,14 @@
     /* Garantia */
     .garantia-bar {
       width: 100%;
-      display: block;
-      line-height: 0;
-      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      padding: 16px 0;
+      background: #111;
     }
     .garantia-bar img {
-      width: 100%; height: auto;
+      width: 50%; height: auto;
       display: block;
-      object-fit: cover;
     }
 
     /* MODAL PIX */
@@ -333,21 +276,11 @@
 <body>
 <div class="wrap">
 
-  <!-- TIMER MOCKUP -->
-  <div class="timer-bar" id="timerBar">
-    <div class="timer-label">⏰ Oferta por tempo limitado</div>
-    <div class="timer-blocks">
-      <div class="timer-block">
-        <div class="timer-digits-box" id="timerMin">10</div>
-        <div class="timer-block-label">Min</div>
-      </div>
-      <div class="timer-sep">:</div>
-      <div class="timer-block">
-        <div class="timer-digits-box" id="timerSeg">00</div>
-        <div class="timer-block-label">Seg</div>
-      </div>
-    </div>
-    <div class="timer-urgency">Finalize sua compra antes que o tempo acabe!</div>
+  <!-- TIMER -->
+  <div class="timer-bar">
+    <span>⏰</span>
+    <span class="timer-digits"><span id="timerMin">10</span>:<span id="timerSeg">00</span></span>
+    <span>Seu tempo está acabando! Finalize agora.</span>
   </div>
 
   <!-- BANNER -->
