@@ -150,6 +150,18 @@
     .form-group input::placeholder { color: #bbb; }
 
     /* PIX */
+    .pix-simples {
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px 0;
+      margin-bottom: 6px;
+    }
+    .pix-simples-img {
+      height: 48px;
+      width: auto;
+    }
     .pix-box {
       border: 2px solid #32bcad;
       border-radius: 12px;
@@ -353,16 +365,8 @@
 
     <!-- PIX -->
     <div class="section-label" style="margin-top:6px;">Pagamento</div>
-    <div class="pix-box">
-      <img src="/pix-logo.png" class="pix-box-bg" alt="" />
-      <div class="pix-logo-wrap" id="elPixLogo">
-        <!-- SVG logo PIX padrão -->
-        <svg class="pix-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-          <path d="M389.6 344.5c-18.9 0-36.7-7.4-50.1-20.8l-71.8-71.8c-5.3-5.3-14.5-5.3-19.8 0l-72.1 72.1c-13.4 13.4-31.2 20.8-50.1 20.8h-14l90.9 90.9c27.6 27.6 72.4 27.6 100 0l91.2-91.2h-4.2zM125.7 167.5c18.9 0 36.7 7.4 50.1 20.8l72.1 72.1c5.5 5.5 14.4 5.5 19.8 0l71.8-71.8c13.4-13.4 31.2-20.8 50.1-20.8h4.2L302.6 76.6c-27.6-27.6-72.4-27.6-100 0l-90.9 90.9h14zM467.1 209.7l-60.7-60.7c-1.5.6-3 1-4.8 1h-12c-13.3 0-26 5.3-35.4 14.7l-71.8 71.8c-14.4 14.4-37.8 14.4-52.2 0l-72.1-72.1c-9.4-9.4-22.1-14.7-35.4-14.7h-17.6c-1.7 0-3.2-.4-4.7-.9L44.9 209.7c-27.6 27.6-27.6 72.4 0 100l60.4 60.4c1.5-.6 3.1-1 4.8-1h17.6c13.3 0 26-5.3 35.4-14.7l72.1-72.1c14.3-14.3 37.9-14.3 52.2 0l71.8 71.8c9.4 9.4 22.1 14.7 35.4 14.7h12c1.7 0 3.3.4 4.8 1l60.7-60.7c27.6-27.5 27.6-72.3 0-99.9z"/>
-        </svg>
-      </div>
-      <span class="pix-label">Pix</span>
-      <div class="pix-check">✓</div>
+    <div class="pix-simples">
+      <img src="/pix-logo.png" alt="PIX" class="pix-simples-img" />
     </div>
 
     <!-- Resumo -->
