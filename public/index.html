@@ -18,21 +18,78 @@
     }
     .wrap { width: 100%; max-width: 480px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* TIMER */
+    /* TIMER MOCKUP */
     .timer-bar {
-      background: #e91e8c;
+      background: linear-gradient(135deg, #1a001a 0%, #3d0057 100%);
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 9px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      text-align: center;
-      flex-wrap: wrap;
+      padding: 14px 16px 12px;
+      border-bottom: 2px solid #e91e8c;
     }
-    .timer-digits { font-size: 20px; font-weight: 900; letter-spacing: 2px; }
+    .timer-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ff9ecc;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .timer-label::before, .timer-label::after {
+      content: '';
+      width: 28px; height: 1px;
+      background: rgba(255,158,204,.3);
+    }
+    .timer-blocks {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .timer-digits-box {
+      background: #e91e8c;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 28px;
+      font-weight: 900;
+      font-family: 'Sora', monospace;
+      letter-spacing: 2px;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(233,30,140,.5), inset 0 1px 0 rgba(255,255,255,.15);
+      min-width: 64px;
+      text-align: center;
+    }
+    .timer-block-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ff9ecc;
+    }
+    .timer-sep {
+      font-size: 24px;
+      font-weight: 900;
+      color: #e91e8c;
+      margin-bottom: 14px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+    .timer-urgency {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffcce8;
+      letter-spacing: .3px;
+    }
 
     /* BANNER */
     .banner {
@@ -98,13 +155,6 @@
 
     /* CORPO */
     .body-card { padding: 18px 16px; flex: 1; }
-
-    /* País */
-    .country-row {
-      display: flex; align-items: center; justify-content: center;
-      gap: 6px; font-size: 14px; font-weight: 700; color: #222;
-      margin-bottom: 16px;
-    }
 
     /* Produto */
     .produto-row {
@@ -300,11 +350,21 @@
 <body>
 <div class="wrap">
 
-  <!-- TIMER -->
+  <!-- TIMER MOCKUP -->
   <div class="timer-bar" id="timerBar">
-    <span>⏰</span>
-    <span class="timer-digits" id="timerDigits">10:00</span>
-    <span>Seu tempo está acabando! Finalize agora.</span>
+    <div class="timer-label">⏰ Oferta por tempo limitado</div>
+    <div class="timer-blocks">
+      <div class="timer-block">
+        <div class="timer-digits-box" id="timerMin">10</div>
+        <div class="timer-block-label">Min</div>
+      </div>
+      <div class="timer-sep">:</div>
+      <div class="timer-block">
+        <div class="timer-digits-box" id="timerSeg">00</div>
+        <div class="timer-block-label">Seg</div>
+      </div>
+    </div>
+    <div class="timer-urgency">Finalize sua compra antes que o tempo acabe!</div>
   </div>
 
   <!-- BANNER -->
@@ -321,9 +381,6 @@
 
   <!-- CORPO -->
   <div class="body-card">
-
-    <!-- País -->
-    <div class="country-row">🇧🇷 Brasil <span style="color:#ccc;font-size:16px;">⌄</span></div>
 
     <!-- Produto -->
     <div class="produto-row">
@@ -503,12 +560,12 @@ document.getElementById('elGarantiaTexto').textContent  = CONFIG.garantia_texto;
 // ── Timer ──────────────────────────────────────────────────────────
 (function() {
   let total = CONFIG.timer_minutos * 60;
-  const el = document.getElementById('timerDigits');
+  const elMin = document.getElementById('timerMin');
+  const elSeg = document.getElementById('timerSeg');
   const tick = () => {
     if (total < 0) return;
-    const m = String(Math.floor(total / 60)).padStart(2, '0');
-    const s = String(total % 60).padStart(2, '0');
-    el.textContent = `${m}:${s}`;
+    elMin.textContent = String(Math.floor(total / 60)).padStart(2, '0');
+    elSeg.textContent = String(total % 60).padStart(2, '0');
     total--;
   };
   tick();
