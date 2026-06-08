@@ -462,6 +462,7 @@
 
     <!-- ORDER BUMPS -->
     <div id="bumpsContainer"></div>
+    <!-- bumpsContainer renderiza a foto do produto + os cards -->
 
     <!-- Resumo -->
     <div class="resumo">
@@ -538,6 +539,10 @@ const CONFIG = {
 
   // Timer
   timer_minutos:     10,
+
+  // Upsell — redireciona após pagamento confirmado (deixe '' para desativar)
+  upsell_url:        '',  // ex: 'https://seusite.com/upsell'
+  upsell_delay:      3,   // segundos antes de redirecionar
 };
 // ═══════════════════════════════════════════════════════════════════
 
@@ -591,9 +596,23 @@ async function carregarBumps() {
 function renderBumps() {
   const container = document.getElementById('bumpsContainer');
   if (!bumpsDisponiveis.length) { container.innerHTML = ''; return; }
+
+  // foto do produto acima dos bumps
+  const fotoHtml = CONFIG.produto_imagem
+    ? `<img src="${CONFIG.produto_imagem}" style="width:56px;height:56px;object-fit:cover;border-radius:12px;flex-shrink:0;" />`
+    : `<div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#e91e8c,#9c27b0);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">${CONFIG.produto_emoji}</div>`;
+
   container.innerHTML = `
     <div class="bump-section">
-      <div class="bump-section-label">Oferta especial para você</div>
+      <div style="display:flex;align-items:center;gap:12px;background:#fff8f8;border:1px solid #fde;border-radius:12px;padding:10px 14px;margin-bottom:14px;">
+        ${fotoHtml}
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#e91e8c;text-transform:uppercase;letter-spacing:.8px;">Você está comprando</div>
+          <div style="font-size:14px;font-weight:800;color:#111;margin-top:2px;">${CONFIG.produto_nome}</div>
+          <div style="font-size:13px;font-weight:700;color:#333;">R$ ${CONFIG.produto_valor.toFixed(2).replace('.',',')}</div>
+        </div>
+      </div>
+      <div class="bump-section-label">Adicionar à minha compra</div>
       ${bumpsDisponiveis.map(b => `
         <div class="bump-card" id="bump-${b.id}" onclick="toggleBump('${b.id}', ${b.valor})">
           <div class="bump-check"></div>
@@ -806,13 +825,39 @@ function iniciarPolling() {
 function confirmarPagamento() {
   const st = document.getElementById('statusEl');
   if (st) { st.className = 'status-pago'; st.innerHTML = '<div class="dot-pulse"></div> ✅ Pagamento confirmado!'; }
+
   setTimeout(() => {
-    document.getElementById('modalContent').innerHTML = `
-      <div style="font-size:64px;margin-bottom:12px;">🎉</div>
-      <h2 style="color:#4caf50;">Pagamento Confirmado!</h2>
-      <p class="sub" style="margin-top:8px;">Obrigado! Você receberá um e-mail com os detalhes.</p>
-      <button class="btn-copiar" onclick="fecharModal()" style="margin-top:20px;background:#4caf50;">Fechar</button>
-    `;
+    if (CONFIG.upsell_url) {
+      // Tela de upsell com contador regressivo
+      let conta = CONFIG.upsell_delay || 3;
+      document.getElementById('modalContent').innerHTML = `
+        <div style="font-size:56px;margin-bottom:12px;">🎉</div>
+        <h2 style="color:#4caf50;font-size:20px;">Pagamento Confirmado!</h2>
+        <p class="sub" style="margin-top:6px;">Obrigado! Você receberá o produto por e-mail.</p>
+        <div style="margin:20px 0;padding:16px;background:#f9f0ff;border-radius:12px;border:2px solid #7c3aed;">
+          <div style="font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Oferta exclusiva para você</div>
+          <p style="font-size:13px;color:#3b0764;font-weight:600;">Temos uma oferta especial preparada! Redirecionando em <span id="contaRegressiva" style="color:#7c3aed;font-weight:900;">${conta}s</span>...</p>
+        </div>
+        <button onclick="window.location.href='${CONFIG.upsell_url}'"
+          style="width:100%;background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:8px;">
+          Ver oferta agora →
+        </button>
+        <button onclick="fecharModal()" style="width:100%;background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;">Pular oferta</button>
+      `;
+      const timer = setInterval(() => {
+        conta--;
+        const el = document.getElementById('contaRegressiva');
+        if (el) el.textContent = conta + 's';
+        if (conta <= 0) { clearInterval(timer); window.location.href = CONFIG.upsell_url; }
+      }, 1000);
+    } else {
+      document.getElementById('modalContent').innerHTML = `
+        <div style="font-size:64px;margin-bottom:12px;">🎉</div>
+        <h2 style="color:#4caf50;">Pagamento Confirmado!</h2>
+        <p class="sub" style="margin-top:8px;">Obrigado! Você receberá um e-mail com os detalhes.</p>
+        <button class="btn-copiar" onclick="fecharModal()" style="margin-top:20px;background:#4caf50;">Fechar</button>
+      `;
+    }
   }, 1800);
 }
 
